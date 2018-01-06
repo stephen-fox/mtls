@@ -25,17 +25,21 @@ const (
 	shouldPrintVersionArg   = "v"
 	shouldPrintExamplesArg  = "x"
 
+	organizationsSeparator = "|"
+	domainNamesSeparator   = ","
+	ipAddressesSeparator   = ","
+
 	examples = `	Generate a mTLS pair for organization 'Junk, Inc.' on loopback:
 	` + applicationName + ` -` + organizationNamesCsvArg + ` 'Junk, Inc.' -` + ipAddressesCsvArg + ` 127.0.0.1
 
 	` + `Generate a mTLS pair that supports several organizations on loopback:
-	` + applicationName + ` -` + organizationNamesCsvArg + ` 'Junk, Inc.|Better Junk LLC.' -` + ipAddressesCsvArg + ` 127.0.0.1
+	` + applicationName + ` -` + organizationNamesCsvArg + ` 'Junk, Inc.` + organizationsSeparator + `Better Junk LLC.' -` + ipAddressesCsvArg + ` 127.0.0.1
 	
 	` + `Generate a mTLS pair for mycoolsite.com:
 	` + applicationName + ` -` + organizationNamesCsvArg + ` 'Junk, Inc.' -` + domainNamesCsvArg + ` mycoolsite.com
 
 	` + `Generate a mTLS pair that supports several DNS addresses:
-	` + applicationName + ` -` + organizationNamesCsvArg + ` 'Junk, Inc.' -` + domainNamesCsvArg + ` mycoolsite.com,anothersite.net
+	` + applicationName + ` -` + organizationNamesCsvArg + ` 'Junk, Inc.' -` + domainNamesCsvArg + ` mycoolsite.com` + domainNamesSeparator + `anothersite.net
 
 	` + `Generate a mTLS pair that expires in 1 year:
 	` + applicationName + ` -` + organizationNamesCsvArg + ` 'Junk, Inc.' -` + domainNamesCsvArg + ` mycoolsite.com` + ` -` + validHoursArg + ` 8760h
@@ -97,7 +101,7 @@ func main() {
 
 	ips := []net.IP{}
 	if len(strings.TrimSpace(*ipAddressesCsv)) > 0 {
-		for _, ip := range strings.Split(*ipAddressesCsv, ",") {
+		for _, ip := range strings.Split(*ipAddressesCsv, ipAddressesSeparator) {
 			result := net.ParseIP(ip)
 			if result == nil {
 				log.Fatal("Failed to parse IP address '", ip, "'")
@@ -108,10 +112,10 @@ func main() {
 
 	domainNames := []string{}
 	if len(strings.TrimSpace(*domainNamesCsv)) > 0 {
-		domainNames = strings.Split(*domainNamesCsv, ",")
+		domainNames = strings.Split(*domainNamesCsv, ipAddressesSeparator)
 	}
 
-	organizationNames := strings.Split(*organizationNamesCsv, "|")
+	organizationNames := strings.Split(*organizationNamesCsv, organizationsSeparator)
 	expirationDate := time.Now().Add(*validHours)
 
 	log.Println("Creating TLS mutual authentication pair...")

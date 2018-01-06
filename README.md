@@ -35,7 +35,7 @@ $ mtls -o "Junk, Inc." -i 127.0.0.1
 If you would like to generate a mTLS pair that supports several organizations,
 separate them by pipes `|`:
 ```bash
-mtls -o 'Junk, Inc.|Better Junk LLC.' -i 127.0.0.1
+$ mtls -o 'Junk, Inc.|Better Junk LLC.' -i 127.0.0.1
 ```
 
 If you would like to generate a mTLS pair that supports several IP addresses,

@@ -60,7 +60,7 @@ You can view additional examples by running the application with `-x`:
 $ mtls -x
 ```
 
-## TLS mutual authentication in practice
+## TLS mutual authentication in a server
 The following steps describe how to run a web server that uses mTLS.
 
 1. Run the included example server:
@@ -77,3 +77,6 @@ $ curl \
     -X 'GET' \
     https://127.0.0.1:8888/test
 ```
+
+## TLS mutual authentication in a client
+Please refer to the `mtls-client-example` application.

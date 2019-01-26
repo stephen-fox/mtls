@@ -1,8 +1,8 @@
 # mtls - TLS Mutual Authentication
 
 ## What is it?
-A Go library and application capable of generating certificate and private
-key pairs which can be used for TLS mutual authentication.
+A small Go library and utility for generating TLS mutual authentication
+certificates and key pairs.
 
 Per [Wikipedia](https://en.wikipedia.org/wiki/Mutual_authentication):
 ```

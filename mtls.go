@@ -13,13 +13,11 @@ import (
 	"time"
 )
 
-/*
-CreateFiles creates a certificate and private key pair for TLS mutual
-authentication at the specified locations. If the specified files already
-exist, then they will be overwritten. Domain names and IP addresses are
-optional. If you do not wish to specify one or the other, simply set the
-value to nil or to an empty list.
-*/
+// CreateFiles creates a certificate and private key pair for TLS mutual
+// authentication at the specified locations. If the specified files already
+// exist, then they will be overwritten. Domain names and IP addresses are
+// optional. If you do not wish to specify one or the other, simply set the
+// value to nil or to an empty list.
 func CreateFiles(organizationNames []string, optionalIps []net.IP, optionalDomainNames []string, expiration time.Time, privateKeyOutPath string, certOutPath string) error {
 	keyOut, err := os.OpenFile(privateKeyOutPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
@@ -58,12 +56,10 @@ func CreateFiles(organizationNames []string, optionalIps []net.IP, optionalDomai
 	return nil
 }
 
-/*
-CreateBlocks creates a certificate and private key pair for TLS mutual
-authentication in the block format. Domain names and IP addresses are
-optional. If you do not wish to specify one or the other, simply set the
-value to nil or to an empty list.
-*/
+// CreateBlocks creates a certificate and private key pair for TLS mutual
+// authentication in the block format. Domain names and IP addresses are
+// optional. If you do not wish to specify one or the other, simply set the
+// value to nil or to an empty list.
 func CreateBlocks(organizationNames []string, optionalIps []net.IP, optionalDomainNames []string, expiration time.Time) (certificate *pem.Block, privateKey *pem.Block, err error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)

@@ -37,16 +37,6 @@ type BasicBuilder struct {
 	// from the private key structure.
 	KeyPair crypto.Signer
 
-	// TODO: Remove.
-	// PublicKey is the certificate's public key. This must be
-	// unique to this certificate.
-	//
-	// This can be generated using the "GenerateKey" functions found
-	// in the 'ecdsa' and the 'rsa' packages. These functions will
-	// generate a private key. The crypto.PublicKey can be extracted
-	// from the private key structure.
-	//PublicKey crypto.PublicKey
-
 	// Signer is the private key used to sign the Template. This is
 	// required when the Template is being issued by a CA.
 	Signer crypto.Signer

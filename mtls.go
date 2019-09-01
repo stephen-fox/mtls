@@ -208,12 +208,17 @@ func CreateBlocks(organizationNames []string, optionalIps []net.IP, optionalDoma
 
 func serialNumber(entropy io.Reader) (*big.Int, error) {
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
-	serialNumber, err := rand.Int(entropy, serialNumberLimit)
+	sn, err := rand.Int(entropy, serialNumberLimit)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate serial number - %s", err.Error())
 	}
 
-	return serialNumber, nil
+	// If the first byte is greater than 127, then we have the wrong bits.
+	if sn.Bytes()[0] > 127 {
+		return serialNumber(entropy)
+	}
+
+	return sn, nil
 }
 
 func privateKeyPemBlock(privateKey crypto.Signer) (*pem.Block, error) {

@@ -9,7 +9,9 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/big"
+	"os"
 )
 
 // BasicBuilder is a very basic TLS certificate builder. This is used to
@@ -45,6 +47,28 @@ type BasicBuilder struct {
 	GenerateSerial bool
 }
 
+// BuildFiles builds the certificate and creates files for the certificate
+// and the private key. If the specified files already exist, then they will
+// be overwritten
+func (o *BasicBuilder) BuildFiles(certificateFilePath string, privateKeyFilePath string, perm os.FileMode) error {
+	pemBlocks, err := o.BuildPemBlocks()
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(certificateFilePath, pemBlocks.Certificate.Bytes, perm)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(privateKeyFilePath, pemBlocks.PrivateKey.Bytes, perm)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // BuildPemBlocks will build the certificate in the form of PEM blocks.
 func (o *BasicBuilder) BuildPemBlocks() (*PemBlocks, error) {
 	if o.Template == nil {
@@ -68,17 +92,9 @@ func (o *BasicBuilder) BuildPemBlocks() (*PemBlocks, error) {
 		o.Template.SerialNumber = serial
 	}
 
-	var parent *x509.Certificate
-
-	if o.Template.IsCA {
-		parent = o.Template
-	} else if o.Parent != nil {
+	parent := o.Template
+	if o.Parent != nil {
 		parent = o.Parent
-		if o.Signer == nil {
-			return nil, fmt.Errorf("signer cannot be nil when the template is being signed by a parent")
-		}
-	} else {
-		return nil, fmt.Errorf("template certificate is not a CA and a parent certificate was not provided")
 	}
 
 	certRaw, err := x509.CreateCertificate(o.Entropy, o.Template, parent, o.KeyPair.Public(), o.Signer)

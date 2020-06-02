@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"flag"
 	"fmt"
 	"log"
@@ -88,29 +91,29 @@ func main() {
 	}
 
 	if len(strings.TrimSpace(*certificatePath)) == 0 {
-		log.Fatal("Please provide the full certificate file path")
+		log.Fatal("please provide the full certificate file path")
 	}
 
 	if len(strings.TrimSpace(*privateKeyPath)) == 0 {
-		log.Fatal("Please provide the full private key file path")
+		log.Fatal("please provide the full private key file path")
 	}
 
 	if len(strings.TrimSpace(*organizationNamesCsv)) == 0 {
-		log.Fatal("Please provide at least one organization name")
+		log.Fatal("please provide at least one organization name")
 	}
 
-	ips := []net.IP{}
+	var ips []net.IP
 	if len(strings.TrimSpace(*ipAddressesCsv)) > 0 {
 		for _, ip := range strings.Split(*ipAddressesCsv, ipAddressesSeparator) {
 			result := net.ParseIP(ip)
 			if result == nil {
-				log.Fatal("Failed to parse IP address '", ip, "'")
+				log.Fatalf("failed to parse IP address '%s'", ip)
 			}
 			ips = append(ips, result)
 		}
 	}
 
-	domainNames := []string{}
+	var domainNames []string
 	if len(strings.TrimSpace(*domainNamesCsv)) > 0 {
 		domainNames = strings.Split(*domainNamesCsv, ipAddressesSeparator)
 	}
@@ -118,12 +121,30 @@ func main() {
 	organizationNames := strings.Split(*organizationNamesCsv, organizationsSeparator)
 	expirationDate := time.Now().Add(*validHours)
 
-	log.Println("Creating TLS mutual authentication pair...")
+	builder := mtls.BasicBuilder{
+		Template: &x509.Certificate{
+			NotBefore: time.Now(),
+			NotAfter:  expirationDate,
+			Subject:   pkix.Name{
+				Organization: organizationNames,
+			},
+			IPAddresses: ips,
+			DNSNames:    domainNames,
+		},
+		Parent:         nil,
+		KeyPair:        nil,
+		Signer:         nil,
+		Entropy:        rand.Reader,
+		GenerateSerial: true,
+	}
+
+	log.Println("creating tls mutual authentication key pair...")
 
 	err := mtls.CreateFiles(organizationNames, ips, domainNames, expirationDate, *privateKeyPath, *certificatePath)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	log.Println("Successfully generated", *certificatePath, "and", *privateKeyPath)
+	log.Printf("successfully generated certificate '%s' and private key '%s'",
+		*certificatePath, *privateKeyPath)
 }
